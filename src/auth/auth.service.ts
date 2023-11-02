@@ -12,7 +12,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-    private config: ConfigService
+    private config: ConfigService,
   ) {}
 
   async signup(dto: AuthDto) {
@@ -54,13 +54,19 @@ export class AuthService {
     return this.signToken(user.id, user.email);
   }
 
-  async signToken(userId: number, email: string): Promise<{ access_token: string }> {
+  async signToken(
+    userId: number,
+    email: string,
+  ): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       email,
     };
     const secret = this.config.get('JWT_SECRET');
-    const token = await this.jwt.signAsync(payload, { secret, expiresIn: '15m' });
+    const token = await this.jwt.signAsync(payload, {
+      secret,
+      expiresIn: '15m',
+    });
 
     return {
       access_token: token,
