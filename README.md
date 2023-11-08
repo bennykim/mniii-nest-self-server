@@ -22,33 +22,21 @@ Follow these instructions to get the project up and running on your local machin
 
 ### Installation
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/your-username/mniii-nest-self-server.git
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd mniii-nest-self-server
-   ```
-
-3. Install dependencies using Yarn:
+1. Install dependencies using Yarn:
 
    ```bash
    yarn install
    ```
 
-4. Set up your PostgreSQL database and update the `prisma.schema` file with your database credentials.
+2. Set up your PostgreSQL database and update the `prisma.schema` file with your database credentials.
 
-5. Run migrations to create the necessary database tables:
+3. Run migrations to create the necessary database tables:
 
    ```bash
    yarn prisma migrate dev
    ```
 
-6. Start the development server:
+4. Start the development server:
 
    ```bash
    yarn start:dev
