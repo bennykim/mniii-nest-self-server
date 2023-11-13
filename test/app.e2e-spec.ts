@@ -5,6 +5,7 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { AuthDto } from '../src/auth/dto';
+import { EditUserDto } from '../src/user/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -12,7 +13,8 @@ describe('App e2e', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-    imports:[AppModule]}).compile();
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     await app.init();
@@ -23,54 +25,47 @@ describe('App e2e', () => {
   });
 
   afterAll(() => {
-    app.close()
+    app.close();
   });
 
-  describe('Auth',() =>{
+  describe('Auth', () => {
     const signupUrl = '/auth/signup';
     const dto: AuthDto = {
       email: 'test@email.com',
-      password: '123'
+      password: '123',
     };
 
-    describe('Sign Up',() => {
+    describe('Sign Up', () => {
       it('should throw if email empty', () => {
         return pactum
           .spec()
           .post(signupUrl)
           .withBody({
-            password: dto.password
+            password: dto.password,
           })
           .expectStatus(400);
-      })
+      });
 
       it('should throw if password empty', () => {
         return pactum
           .spec()
           .post(signupUrl)
           .withBody({
-            email: dto.email
+            email: dto.email,
           })
           .expectStatus(400);
-      })
+      });
 
       it('should throw if no body provided', () => {
-        return pactum
-          .spec()
-          .post(signupUrl)
-          .expectStatus(400);
-      })
+        return pactum.spec().post(signupUrl).expectStatus(400);
+      });
 
       it('should signup', () => {
-        return pactum
-          .spec()
-          .post(signupUrl)
-          .withBody(dto)
-          .expectStatus(201);
-      })
+        return pactum.spec().post(signupUrl).withBody(dto).expectStatus(201);
+      });
     });
 
-    describe('Sign In',() => {
+    describe('Sign In', () => {
       const signinUrl = '/auth/signin';
 
       it('should throw if email empty', () => {
@@ -78,67 +73,78 @@ describe('App e2e', () => {
           .spec()
           .post(signinUrl)
           .withBody({
-            password: dto.password
+            password: dto.password,
           })
           .expectStatus(400);
-      })
+      });
 
       it('should throw if password empty', () => {
         return pactum
           .spec()
           .post(signinUrl)
           .withBody({
-            email: dto.email
+            email: dto.email,
           })
           .expectStatus(400);
-      })
+      });
 
       it('should throw if no body provided', () => {
+        return pactum.spec().post(signinUrl).expectStatus(400);
+      });
+
+      it('should signin', () => {
         return pactum
           .spec()
           .post(signinUrl)
-          .expectStatus(400);
-      })
-
-      it('should signin', () => {
-          return pactum
-            .spec()
-            .post(signinUrl)
-            .withBody(dto)
-            .expectStatus(200)
-            .stores('userAt', 'access_token');
-        })
+          .withBody(dto)
+          .expectStatus(200)
+          .stores('userAt', 'access_token');
+      });
     });
   });
 
-  describe('User',() =>{
-    describe('Get me',() => {
+  describe('User', () => {
+    describe('Get me', () => {
       it('should get current user', () => {
         return pactum
           .spec()
           .get('/users/me')
           .withHeaders({
-            Authorization: 'Bearer $S{userAt}'
+            Authorization: 'Bearer $S{userAt}',
           })
-          .expectStatus(200)
-          .inspect();
-      })
+          .expectStatus(200);
+      });
     });
 
-    describe('Edit user',() => {});
-
+    describe('Edit user', () => {
+      it('should edit user', () => {
+        const dto: EditUserDto = {
+          firstName: 'ohoh',
+          email: 'test@testtest.com',
+        };
+        return pactum
+          .spec()
+          .patch('/users')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.firstName)
+          .expectBodyContains(dto.email);
+      });
+    });
   });
 
-  describe('Bookmark',() =>{
-    describe('Create bookmark',() => {});
+  describe('Bookmark', () => {
+    describe('Create bookmark', () => {});
 
-    describe('Get bookmark',() => {});
+    describe('Get bookmark', () => {});
 
-    describe('Get bookmark by id',() => {});
+    describe('Get bookmark by id', () => {});
 
-    describe('Edit bookmark by id',() => {});
+    describe('Edit bookmark by id', () => {});
 
-    describe('Delete bookmark by id',() => {});
+    describe('Delete bookmark by id', () => {});
   });
-
 });
