@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { ValidationPipe } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
 import * as pactum from 'pactum';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { AuthDto } from '../src/auth/dto';
@@ -18,6 +19,7 @@ describe('App e2e', () => {
     }).compile();
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    app.use(cookieParser());
     await app.init();
     await app.listen(3333);
     prisma = app.get(PrismaService);
@@ -93,13 +95,20 @@ describe('App e2e', () => {
         return pactum.spec().post(signinUrl).expectStatus(400);
       });
 
-      it('should signin', () => {
+      it('should signin', async () => {
         return pactum
           .spec()
           .post(signinUrl)
           .withBody(dto)
           .expectStatus(200)
-          .stores('userAt', 'access_token');
+          .returns((ctx) => {
+            const cookies = ctx.res.headers['set-cookie'];
+            const cookie = cookies ? cookies[0] : null;
+            return pactum.stash.addDataTemplate({
+              cookie: cookie,
+            });
+          })
+          .stores('userAt', '$RETURN');
       });
     });
   });
@@ -110,9 +119,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .get('/users/me')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .expectStatus(200);
       });
     });
@@ -126,9 +133,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .patch('/users')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .withBody(dto)
           .expectStatus(200)
           .expectBodyContains(dto.firstName)
@@ -143,9 +148,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .get('/bookmarks')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .expectStatus(200)
           .expectBody([]);
       });
@@ -161,9 +164,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .post('/bookmarks')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .withBody(dto)
           .expectStatus(201)
           .stores('bookmarkId', 'id');
@@ -175,9 +176,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .get('/bookmarks')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .expectStatus(200)
           .expectJsonLength(1);
       });
@@ -189,9 +188,7 @@ describe('App e2e', () => {
           .spec()
           .get('/bookmarks/{id}')
           .withPathParams('id', '$S{bookmarkId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .expectStatus(200)
           .expectBodyContains('$S{bookmarkId}');
       });
@@ -207,9 +204,7 @@ describe('App e2e', () => {
           .spec()
           .patch('/bookmarks/{id}')
           .withPathParams('id', '$S{bookmarkId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .withBody(dto)
           .expectStatus(200)
           .expectBodyContains(dto.title)
@@ -223,9 +218,7 @@ describe('App e2e', () => {
           .spec()
           .delete('/bookmarks/{id}')
           .withPathParams('id', '$S{bookmarkId}')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .expectStatus(204);
       });
 
@@ -233,9 +226,7 @@ describe('App e2e', () => {
         return pactum
           .spec()
           .get('/bookmarks')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .expectStatus(200)
           .expectJsonLength(0);
       });
