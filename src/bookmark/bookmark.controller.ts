@@ -11,11 +11,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guard';
 import { BookmarkService } from './bookmark.service';
 import { GetUser } from '../auth/decorator';
 import { CreateBookmarkDto, EditBookmarkDto } from './dto';
 
+@ApiTags('bookmarks')
 @UseGuards(JwtGuard)
 @Controller('bookmarks')
 export class BookmarkController {

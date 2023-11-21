@@ -7,9 +7,11 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
