@@ -75,5 +75,7 @@ export class BookmarkService {
         id: bookmarkId,
       },
     });
+
+    return { message: 'deleted successfully' };
   }
 }
