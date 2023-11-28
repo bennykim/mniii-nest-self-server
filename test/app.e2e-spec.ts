@@ -35,7 +35,7 @@ describe('App e2e', () => {
     const signupUrl = '/auth/signup';
     const dto: AuthDto = {
       email: 'test@email.com',
-      password: '123',
+      password: 'test123',
     };
 
     describe('Sign Up', () => {
@@ -124,11 +124,21 @@ describe('App e2e', () => {
       });
     });
 
+    describe('Get users', () => {
+      it('should retrieve all users', () => {
+        return pactum
+          .spec()
+          .get('/users')
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
+    });
+
     describe('Edit user', () => {
       it('should edit user', () => {
         const dto: EditUserDto = {
-          firstName: 'ohoh',
-          email: 'test@testtest.com',
+          nickname: 'tester',
         };
         return pactum
           .spec()
@@ -136,8 +146,19 @@ describe('App e2e', () => {
           .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
           .withBody(dto)
           .expectStatus(200)
-          .expectBodyContains(dto.firstName)
-          .expectBodyContains(dto.email);
+          .expectBodyContains(dto.nickname);
+      });
+    });
+
+    describe('Query Users', () => {
+      it('should retrieve users matching the query', () => {
+        return pactum
+          .spec()
+          .get('/users')
+          .withQueryParams('nickname', 'tester')
+          .withCookies(pactum.parse({ '@DATA:TEMPLATE@': 'cookie' }))
+          .expectStatus(200)
+          .expectJsonLength(1);
       });
     });
   });

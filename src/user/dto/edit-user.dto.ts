@@ -10,6 +10,11 @@ export class EditUserDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
+  nickname?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
   firstName?: string;
 
   @ApiProperty({ required: false })

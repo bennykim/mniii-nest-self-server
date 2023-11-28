@@ -1,5 +1,5 @@
-import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Patch, Body, UseGuards, Query } from '@nestjs/common';
+import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
 import { UserDto, EditUserDto } from './dto';
@@ -15,6 +15,13 @@ export class UserController {
   @ApiOkResponse({ type: UserDto })
   getMe(@GetUser() user: UserDto) {
     return user;
+  }
+
+  @Get()
+  @ApiOkResponse({ type: UserDto, isArray: true })
+  @ApiQuery({ name: 'nickname', required: false })
+  getUsers(@Query('nickname') nickname?: string) {
+    return this.userService.getUsers(nickname);
   }
 
   @Patch()

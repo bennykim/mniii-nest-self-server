@@ -14,6 +14,9 @@ export class UserDto {
   email: string;
 
   @ApiProperty()
+  nickname: string | null;
+
+  @ApiProperty()
   firstName: string | null;
 
   @ApiProperty()
